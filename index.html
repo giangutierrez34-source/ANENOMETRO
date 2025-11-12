@@ -5,15 +5,424 @@
   <title>Anemómetro - Velocidad en vivo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: Arial, sans-serif; text-align:center; padding:2rem; }
-    .card { display:inline-block; padding:1.5rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
-    h1 { margin:0 0 1rem 0; }
-    .big { font-size:3rem; font-weight:bold; }
-    .small { font-size:1rem; color:#555; }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Montserrat", sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a0000 0%, #4a0000 25%, #8B0000 40%, #003366 60%, #001a4d 75%, #000033 100%);
+      background-size: 200% 200%;
+      animation: elegantGradient 20s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes elegantGradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Partículas sutiles de fondo */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 100px 100px, 150px 150px, 120px 120px;
+      animation: particles 30s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes particles {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-100px); }
+    }
+
+    /* Logo/Escudo decorativo */
+    .emblem {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      width: 60px;
+      height: 60px;
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #D4AF37;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.1), transparent);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    header {
+      background: transparent;
+      backdrop-filter: none;
+      padding: 2.5rem 2rem;
+      border-radius: 0;
+      margin-bottom: 3rem;
+      border: none;
+      box-shadow: none;
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      bottom: -1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
+    }
+
+    header h2 {
+      font-family: "Montserrat", sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 4px;
+      font-weight: 400;
+      color: rgba(212, 175, 55, 0.7);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    header h1 {
+      font-family: "Playfair Display", serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      line-height: 1.3;
+    }
+
+    header h3 {
+      font-family: "Montserrat", sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      font-weight: 300;
+      color: rgba(212, 175, 55, 0.6);
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2.5rem;
+      max-width: 1000px;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+    }
+
+    .card {
+      background: linear-gradient(135deg, 
+        rgba(30, 30, 50, 0.6) 0%, 
+        rgba(20, 20, 35, 0.7) 100%);
+      backdrop-filter: blur(25px);
+      border-radius: 2px;
+      padding: 3.5rem 3rem;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-left: 3px solid rgba(212, 175, 55, 0.5);
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, 
+        rgba(212, 175, 55, 0.03) 0%, 
+        transparent 50%);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 
+        0 30px 80px rgba(0, 0, 0, 0.6),
+        0 0 50px rgba(212, 175, 55, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      border-left-color: #D4AF37;
+      border-left-width: 4px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    }
+
+    .icon {
+      font-size: 2rem;
+      filter: grayscale(0.3);
+      opacity: 0.7;
+    }
+
+    .card h2 {
+      font-family: "Montserrat", sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+
+    .status {
+      margin-bottom: 2.5rem;
+      font-size: 0.75rem;
+      color: rgba(192, 192, 192, 0.7);
+      font-weight: 300;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .status-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4CAF50;
+      box-shadow: 0 0 12px rgba(76, 175, 80, 0.6);
+      animation: statusPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(76, 175, 80, 0.6); }
+      50% { opacity: 0.4; box-shadow: 0 0 20px rgba(76, 175, 80, 0.9); }
+    }
+
+    .metric-display {
+      position: relative;
+      z-index: 1;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .value {
+      font-family: "Playfair Display", serif;
+      font-size: 5rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-shadow: 
+        0 0 30px rgba(255, 255, 255, 0.1),
+        0 2px 10px rgba(0, 0, 0, 0.5);
+      margin: 0;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .unit {
+      font-family: "Montserrat", sans-serif;
+      font-size: 0.8rem;
+      color: rgba(192, 192, 192, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-weight: 300;
+      margin-top: 1rem;
+      display: block;
+    }
+
+    /* Líneas decorativas */
+    .decorative-line {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+      margin: 1.5rem auto;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .emblem {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        top: 1rem;
+        left: 1rem;
+      }
+
+      header {
+        padding: 1.5rem 1rem;
+        margin-bottom: 2rem;
+      }
+
+      header h1 {
+        font-size: 1.4rem;
+        line-height: 1.4;
+      }
+      
+      header h2 {
+        font-size: 0.65rem;
+        letter-spacing: 2px;
+        margin-bottom: 0.4rem;
+      }
+
+      header h3 {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        margin-top: 0.4rem;
+      }
+
+      header::before {
+        width: 80px;
+        bottom: -0.8rem;
+      }
+
+      .container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0;
+      }
+
+      .card {
+        padding: 2rem 1.5rem;
+      }
+
+      .card-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+      }
+
+      .icon {
+        font-size: 1.5rem;
+      }
+
+      .card h2 {
+        font-size: 0.85rem;
+        letter-spacing: 1.5px;
+      }
+
+      .status {
+        font-size: 0.7rem;
+        margin-bottom: 2rem;
+      }
+
+      .value {
+        font-size: 3.5rem;
+        letter-spacing: -1px;
+      }
+
+      .unit {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        margin-top: 0.8rem;
+      }
+
+      .decorative-line {
+        width: 50px;
+        margin: 1rem auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.2rem;
+      }
+
+      header h2, header h3 {
+        font-size: 0.6rem;
+        letter-spacing: 1.5px;
+      }
+
+      .value {
+        font-size: 3rem;
+      }
+
+      .card {
+        padding: 1.8rem 1.2rem;
+      }
+
+      .unit {
+        font-size: 0.65rem;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .container {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 800px;
+      }
+
+      header {
+        max-width: 800px;
+      }
+
+      .value {
+        font-size: 4.5rem;
+      }
+    }
+
+    /* Animación de entrada elegante */
+    @keyframes elegantFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .emblem {
+      animation: elegantFadeIn 1s ease-out 0.2s backwards;
+    }
+
+    header {
+      animation: elegantFadeIn 1s ease-out 0.4s backwards;
+    }
+
+    .card:nth-child(1) {
+      animation: elegantFadeIn 1s ease-out 0.6s backwards;
+    }
+
+    .card:nth-child(2) {
+      animation: elegantFadeIn 1s ease-out 0.8s backwards;
+    }
   </style>
 
   <script type="module">
-    // ✅ Tu configuración real de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCFF56TH_IXFkFmIX3bw4z-UN8NtQZVfTA",
       authDomain: "anenometro-dcb24.firebaseapp.com",
@@ -25,50 +434,84 @@
       measurementId: "G-9QQW511YSJ"
     };
 
-    // Importar SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
-    // ✅ Debe coincidir con lo que envía el ESP32
     const deviceRef = ref(db, 'sensors/anemometro01/last');
 
     window.addEventListener('DOMContentLoaded', () => {
       const rpmEl = document.getElementById('rpm');
       const velEl = document.getElementById('vel');
       const statusEl = document.getElementById('status');
+      const statusIndicator = document.querySelector('.status-indicator');
 
-      // Escuchar cambios en tiempo real
       onValue(deviceRef, (snapshot) => {
         const data = snapshot.val();
 
         if (!data) {
-          statusEl.textContent = "Esperando datos del dispositivo...";
-          velEl.textContent = "- km/h";
-          rpmEl.textContent = "-";
+          statusEl.textContent = 'Esperando datos del dispositivo...';
+          statusIndicator.style.background = '#ff4444';
+          statusIndicator.style.boxShadow = '0 0 12px rgba(255, 68, 68, 0.6)';
+          velEl.textContent = "—";
+          rpmEl.textContent = "—";
           return;
         }
 
-        // Mostrar valores
-        velEl.textContent = data.vel_km_h ? data.vel_km_h.toFixed(2) + " km/h" : "- km/h";
-        rpmEl.textContent = data.rpm ? data.rpm.toFixed(1) : "-";
-        statusEl.textContent = "Última actualización: " + new Date().toLocaleTimeString();
+        velEl.textContent = data.vel_km_h ? data.vel_km_h.toFixed(2) : "—";
+        rpmEl.textContent = data.rpm ? data.rpm.toFixed(1) : "—";
+        statusEl.textContent = 'Última actualización: ' + new Date().toLocaleTimeString('es-ES');
+        statusIndicator.style.background = '#4CAF50';
+        statusIndicator.style.boxShadow = '0 0 12px rgba(76, 175, 80, 0.6)';
       });
     });
   </script>
 </head>
 <body>
-  <div class="card">
-    <h1>Anemómetro (en vivo)</h1>
-    <div class="small" id="status">Conectando...</div>
-    <div style="margin-top:1rem;">
-      <div class="big" id="vel">- km/h</div>
-      <div class="small">Velocidad</div>
-      <div style="height:1rem"></div>
-      <div class="big" id="rpm">-</div>
-      <div class="small">RPM</div>
+  <div class="emblem">⚙</div>
+
+  <header>
+    <h2>Facultad Técnica</h2>
+    <h1>Carrera de Mecánica Industrial</h1>
+    <h3>Anemómetro — Electrotecnia</h3>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <span class="icon">💨</span>
+        <h2>Velocidad del Viento</h2>
+      </div>
+      
+      <div class="status">
+        <span class="status-indicator"></span>
+        <span id="status">Conectando...</span>
+      </div>
+      
+      <div class="metric-display">
+        <div class="value" id="vel">—</div>
+        <div class="decorative-line"></div>
+        <span class="unit">Kilómetros por Hora</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="icon">⚙️</span>
+        <h2>Revoluciones</h2>
+      </div>
+      
+      <div class="status" style="visibility: hidden;">
+        <span class="status-indicator"></span>
+        <span>placeholder</span>
+      </div>
+      
+      <div class="metric-display">
+        <div class="value" id="rpm">—</div>
+        <div class="decorative-line"></div>
+        <span class="unit">Revoluciones por Minuto</span>
+      </div>
     </div>
   </div>
 </body>
