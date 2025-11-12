@@ -39,7 +39,8 @@
       const velEl = document.getElementById('vel');
       const statusEl = document.getElementById('status');
 
-      const deviceRef = ref(db, 'sensors/' + deviceId + '/last');
+      const deviceRef = ref(db, 'anemometro/velocidad_km_h');
+
 
       // Escuchar cambios en tiempo real
       onValue(deviceRef, (snapshot) => {
@@ -74,3 +75,4 @@
   </div>
 </body>
 </html>
+
