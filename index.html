@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Anemómetro - Velocidad en vivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; text-align:center; padding:2rem; }
+    .card { display:inline-block; padding:1.5rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+    h1 { margin:0 0 1rem 0; }
+    .big { font-size:3rem; font-weight:bold; }
+    .small { font-size:1rem; color:#555; }
+  </style>
+  <!-- Firebase JS SDK -->
+  <script type="module">
+    // Reemplaza esto con tu configuración real desde Firebase Console -> Project Settings -> Add app (Web)
+    const firebaseConfig = {
+      apiKey: "TU_APIKEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      databaseURL: "https://TU_PROYECTO.firebaseio.com",
+      projectId: "TU_PROYECTO",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    // Importar SDK (moderno)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ID del dispositivo a leer (debe coincidir con DEVICE_ID del ESP32)
+    const deviceId = "anemometro01";
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const rpmEl = document.getElementById('rpm');
+      const velEl = document.getElementById('vel');
+      const statusEl = document.getElementById('status');
+
+      const deviceRef = ref(db, 'sensors/' + deviceId + '/last');
+
+      // Escuchar cambios en tiempo real
+      onValue(deviceRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          statusEl.textContent = "Esperando datos del dispositivo...";
+          rpmEl.textContent = "-";
+          velEl.textContent = "-";
+          return;
+        }
+        statusEl.textContent = "Última actualización: " + new Date().toLocaleTimeString();
+        rpmEl.textContent = data.rpm ? data.rpm.toFixed(1) : "-";
+        velEl.textContent = data.vel_km_h ? data.vel_km_h.toFixed(2) + " km/h" : "-";
+      }, (error) => {
+        statusEl.textContent = "Error leyendo Firebase: " + error;
+      });
+
+    });
+  </script>
+</head>
+<body>
+  <div class="card">
+    <h1>Anemómetro (en vivo)</h1>
+    <div class="small" id="status">Conectando...</div>
+    <div style="margin-top:1rem;">
+      <div class="big" id="vel">- km/h</div>
+      <div class="small">Velocidad</div>
+      <div style="height:1rem"></div>
+      <div class="big" id="rpm">-</div>
+      <div class="small">RPM</div>
+    </div>
+  </div>
+</body>
+</html>
