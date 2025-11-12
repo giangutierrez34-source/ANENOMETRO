@@ -43,20 +43,24 @@
 
 
       // Escuchar cambios en tiempo real
-      onValue(deviceRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) {
-          statusEl.textContent = "Esperando datos del dispositivo...";
-          rpmEl.textContent = "-";
-          velEl.textContent = "-";
-          return;
-        }
-        statusEl.textContent = "Última actualización: " + new Date().toLocaleTimeString();
-        rpmEl.textContent = data.rpm ? data.rpm.toFixed(1) : "-";
-        velEl.textContent = data.vel_km_h ? data.vel_km_h.toFixed(2) + " km/h" : "-";
-      }, (error) => {
-        statusEl.textContent = "Error leyendo Firebase: " + error;
-      });
+onValue(deviceRef, (snapshot) => {
+  const data = snapshot.val();
+  
+  if (!data) return; // Si no hay datos aún, no hace nada
+
+  // Mostrar velocidad
+  document.getElementById('vel').textContent = 
+      data.vel_km_h ? data.vel_km_h.toFixed(2) + " km/h" : "- km/h";
+
+  // Mostrar RPM
+  document.getElementById('rpm').textContent = 
+      data.rpm ? data.rpm.toFixed(1) : "-";
+
+  // Mostrar hora de última actualización
+  document.getElementById('status').textContent = 
+      "Última actualización: " + new Date().toLocaleTimeString();
+});
+
 
     });
   </script>
