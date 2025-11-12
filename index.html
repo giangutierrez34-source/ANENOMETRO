@@ -11,57 +11,51 @@
     .big { font-size:3rem; font-weight:bold; }
     .small { font-size:1rem; color:#555; }
   </style>
-  <!-- Firebase JS SDK -->
+
   <script type="module">
-    // Reemplaza esto con tu configuración real desde Firebase Console -> Project Settings -> Add app (Web)
+    // ✅ Tu configuración real de Firebase
     const firebaseConfig = {
-      apiKey: "TU_APIKEY",
-      authDomain: "TU_PROYECTO.firebaseapp.com",
-      databaseURL: "https://TU_PROYECTO.firebaseio.com",
-      projectId: "TU_PROYECTO",
-      storageBucket: "TU_PROYECTO.appspot.com",
-      messagingSenderId: "TU_SENDER_ID",
-      appId: "TU_APP_ID"
+      apiKey: "AIzaSyCFF56TH_IXFkFmIX3bw4z-UN8NtQZVfTA",
+      authDomain: "anenometro-dcb24.firebaseapp.com",
+      databaseURL: "https://anenometro-dcb24-default-rtdb.firebaseio.com",
+      projectId: "anenometro-dcb24",
+      storageBucket: "anenometro-dcb24.firebasestorage.app",
+      messagingSenderId: "708737584639",
+      appId: "1:708737584639:web:ebbe104386b360e98febca",
+      measurementId: "G-9QQW511YSJ"
     };
 
-    // Importar SDK (moderno)
+    // Importar SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ID del dispositivo a leer (debe coincidir con DEVICE_ID del ESP32)
-    const deviceId = "anemometro01";
+    // ✅ Debe coincidir con lo que envía el ESP32
+    const deviceRef = ref(db, 'sensors/anemometro01/last');
 
     window.addEventListener('DOMContentLoaded', () => {
       const rpmEl = document.getElementById('rpm');
       const velEl = document.getElementById('vel');
       const statusEl = document.getElementById('status');
 
-      const deviceRef = ref(db, 'anemometro/velocidad_km_h');
-
-
       // Escuchar cambios en tiempo real
-onValue(deviceRef, (snapshot) => {
-  const data = snapshot.val();
-  
-  if (!data) return; // Si no hay datos aún, no hace nada
+      onValue(deviceRef, (snapshot) => {
+        const data = snapshot.val();
 
-  // Mostrar velocidad
-  document.getElementById('vel').textContent = 
-      data.vel_km_h ? data.vel_km_h.toFixed(2) + " km/h" : "- km/h";
+        if (!data) {
+          statusEl.textContent = "Esperando datos del dispositivo...";
+          velEl.textContent = "- km/h";
+          rpmEl.textContent = "-";
+          return;
+        }
 
-  // Mostrar RPM
-  document.getElementById('rpm').textContent = 
-      data.rpm ? data.rpm.toFixed(1) : "-";
-
-  // Mostrar hora de última actualización
-  document.getElementById('status').textContent = 
-      "Última actualización: " + new Date().toLocaleTimeString();
-});
-
-
+        // Mostrar valores
+        velEl.textContent = data.vel_km_h ? data.vel_km_h.toFixed(2) + " km/h" : "- km/h";
+        rpmEl.textContent = data.rpm ? data.rpm.toFixed(1) : "-";
+        statusEl.textContent = "Última actualización: " + new Date().toLocaleTimeString();
+      });
     });
   </script>
 </head>
@@ -79,4 +73,3 @@ onValue(deviceRef, (snapshot) => {
   </div>
 </body>
 </html>
-
